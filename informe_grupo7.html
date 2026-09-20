@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acceso al Crédito y Ahorro Financiero — Grupo 7</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<style>
+  :root{
+    --azul:#2563eb; --azul-d:#1e40af; --teal:#0d9488; --ambar:#f59e0b;
+    --rosa:#e11d48; --violeta:#7c3aed; --verde:#16a34a; --gris:#475569;
+    --tinta:#0f172a; --papel:#f1f5f9; --card:#ffffff; --borde:#e2e8f0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--tinta);
+    background:var(--papel);line-height:1.65;scroll-behavior:smooth}
+  /* HEADER */
+  header{background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 45%,#0d9488 100%);
+    color:#fff;padding:64px 24px 72px;text-align:center;position:relative;overflow:hidden}
+  header::after{content:"";position:absolute;inset:0;
+    background:radial-gradient(circle at 20% 20%,rgba(255,255,255,.15),transparent 40%),
+               radial-gradient(circle at 80% 70%,rgba(255,255,255,.10),transparent 45%)}
+  header .wrap{position:relative;z-index:1;max-width:900px;margin:0 auto}
+  header .eyebrow{letter-spacing:3px;text-transform:uppercase;font-size:.8rem;opacity:.9;font-weight:600}
+  header h1{font-size:2.6rem;margin:14px 0 10px;font-weight:800;line-height:1.15}
+  header p.sub{font-size:1.15rem;opacity:.95;max-width:640px;margin:0 auto}
+  .badges{margin-top:24px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .badge{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);
+    padding:7px 16px;border-radius:999px;font-size:.9rem;font-weight:600;backdrop-filter:blur(4px)}
+  .equipo{margin-top:26px;font-size:.95rem;opacity:.92}
+  .equipo b{display:block;letter-spacing:1px;text-transform:uppercase;font-size:.75rem;opacity:.85;margin-bottom:4px}
+  /* NAV */
+  nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--borde);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+  nav .inner{max-width:1100px;margin:0 auto;display:flex;gap:4px;flex-wrap:wrap;
+    padding:10px 16px;justify-content:center}
+  nav a{color:var(--gris);text-decoration:none;font-weight:600;font-size:.9rem;
+    padding:7px 13px;border-radius:8px;transition:.15s}
+  nav a:hover{background:var(--papel);color:var(--azul)}
+  /* LAYOUT */
+  main{max-width:1100px;margin:0 auto;padding:0 20px}
+  section{padding:56px 0 12px;border-bottom:1px solid var(--borde)}
+  section:last-child{border-bottom:none}
+  .kicker{color:var(--azul);font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:.78rem}
+  h2{font-size:1.9rem;margin:6px 0 18px;font-weight:800;color:var(--tinta);
+    display:flex;align-items:center;gap:12px}
+  h2 .num{background:var(--azul);color:#fff;width:38px;height:38px;border-radius:10px;
+    display:inline-flex;align-items:center;justify-content:center;font-size:1.1rem;flex:none}
+  h3{font-size:1.15rem;margin:26px 0 10px;color:var(--azul-d);font-weight:700}
+  p{margin:12px 0}
+  a.ref{color:var(--azul);font-weight:600}
+  /* KPI */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin:24px 0}
+  .kpi{background:var(--card);border:1px solid var(--borde);border-radius:14px;padding:20px;
+    text-align:center;box-shadow:0 4px 14px rgba(15,23,42,.05);border-top:4px solid var(--azul)}
+  .kpi:nth-child(2){border-top-color:var(--teal)} .kpi:nth-child(3){border-top-color:var(--ambar)}
+  .kpi:nth-child(4){border-top-color:var(--rosa)} .kpi:nth-child(5){border-top-color:var(--violeta)}
+  .kpi .big{font-size:2.1rem;font-weight:800;color:var(--tinta);line-height:1}
+  .kpi .lbl{font-size:.85rem;color:var(--gris);margin-top:8px;font-weight:600}
+  /* CHART CARD */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:22px;margin:20px 0}
+  .chart-card{background:var(--card);border:1px solid var(--borde);border-radius:16px;
+    padding:20px 20px 24px;box-shadow:0 6px 20px rgba(15,23,42,.06)}
+  .chart-card h4{font-size:1.02rem;font-weight:700;margin-bottom:4px;color:var(--tinta)}
+  .chart-card .cap{font-size:.82rem;color:var(--gris);margin-bottom:12px}
+  .canvas-box{position:relative;height:290px}
+  .full{grid-column:1/-1}
+  /* INSIGHT BOX */
+  .insight{background:linear-gradient(135deg,#eff6ff,#f0fdfa);border-left:5px solid var(--teal);
+    border-radius:0 12px 12px 0;padding:16px 20px;margin:16px 0}
+  .insight b{color:var(--azul-d)}
+  .insight.warn{background:linear-gradient(135deg,#fff7ed,#fef2f2);border-left-color:var(--rosa)}
+  .insight.warn b{color:var(--rosa)}
+  /* TABLE */
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.92rem;background:var(--card);
+    border-radius:12px;overflow:hidden;box-shadow:0 4px 14px rgba(15,23,42,.05)}
+  th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--borde)}
+  th{background:var(--azul);color:#fff;font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:.5px}
+  tr:last-child td{border-bottom:none}
+  tr:nth-child(even) td{background:#f8fafc}
+  /* RULE LIST */
+  .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:18px 0}
+  .rule{background:var(--card);border:1px solid var(--borde);border-radius:14px;padding:18px 20px;
+    box-shadow:0 4px 14px rgba(15,23,42,.05)}
+  .rule .tag{display:inline-block;background:var(--teal);color:#fff;font-size:.72rem;font-weight:700;
+    padding:3px 10px;border-radius:999px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+  .rule b{display:block;margin-bottom:4px;color:var(--tinta)}
+  .rule span{font-size:.9rem;color:var(--gris)}
+  /* CLASS CARDS */
+  .clas{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:18px 0}
+  .cbox{border-radius:14px;padding:18px 20px;color:#fff;box-shadow:0 6px 18px rgba(15,23,42,.12)}
+  .cbox h4{font-size:1.05rem;margin-bottom:6px}
+  .cbox p{font-size:.88rem;opacity:.95;margin:6px 0}
+  .cbox code{background:rgba(255,255,255,.22);padding:2px 6px;border-radius:5px;font-size:.82rem}
+  /* CONCLUSION */
+  .concl{background:var(--card);border:1px solid var(--borde);border-radius:16px;padding:8px 26px;
+    box-shadow:0 6px 20px rgba(15,23,42,.06);margin:18px 0}
+  .concl li{margin:14px 0;padding-left:6px}
+  ul{margin:10px 0 10px 22px}
+  .reco{background:linear-gradient(135deg,#f0fdf4,#ecfeff);border-radius:14px;padding:18px 24px;
+    border-left:5px solid var(--verde);margin-top:20px}
+  /* REFS */
+  .refs li{margin:12px 0;font-size:.92rem}
+  footer{background:var(--tinta);color:#cbd5e1;text-align:center;padding:34px 20px;font-size:.9rem;margin-top:20px}
+  footer b{color:#fff}
+  .note{font-size:.82rem;color:var(--gris);font-style:italic;margin-top:8px}
+  @media(max-width:600px){header h1{font-size:1.9rem}h2{font-size:1.5rem}.canvas-box{height:260px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Universidad de Lima · Facultad de Economía · Ciencia de Datos</div>
+    <h1>Acceso al Crédito y Ahorro Financiero en el Perú</h1>
+    <p class="sub">Un análisis de la inclusión financiera de 5 000 personas en seis departamentos, con foco en las brechas de crédito, ahorro e historial crediticio.</p>
+    <div class="badges">
+      <span class="badge">📊 5 000 registros</span>
+      <span class="badge">🗺️ 6 departamentos</span>
+      <span class="badge">📈 11 variables</span>
+      <span class="badge">🧮 Trabajo Práctico 1</span>
+    </div>
+    <div class="equipo">
+      <b>Equipo 7 — Integrantes</b>
+      Yamir Josue Mamani Sanabria (código) · Ana Letizia Ugaz Sotelo (20254865) · Mirko Estéfano Vlainic’ Vásquez (20253499) · Ignacio Sebastian Tello Cespedes (20253151)
+    </div>
+  </div>
+</header>
+
+<nav><div class="inner">
+  <a href="#intro">Introducción</a>
+  <a href="#datos">Datos</a>
+  <a href="#limpieza">Limpieza</a>
+  <a href="#clasif">Clasificaciones</a>
+  <a href="#graficos">Gráficos y hallazgos</a>
+  <a href="#adicional">Análisis adicional</a>
+  <a href="#conclusion">Conclusiones</a>
+  <a href="#refs">Referencias</a>
+</div></nav>
+
+<main>
+
+<!-- 1. INTRODUCCIÓN -->
+<section id="intro">
+  <div class="kicker">Contexto económico</div>
+  <h2><span class="num">1</span>Introducción</h2>
+  <p>La <b>inclusión financiera</b> —el acceso y uso efectivo de servicios como cuentas de ahorro y crédito— es reconocida como una palanca para reducir la pobreza y dinamizar la economía de los hogares. En el Perú persisten brechas importantes: la lejanía física de las agencias, los costos de transacción y la falta de historial crediticio limitan el acceso, especialmente en zonas rurales y regiones andinas y amazónicas <a class="ref" href="#r2">(SBS, 2018)</a>.</p>
+  <p>La evidencia nacional muestra que factores <b>socioeconómicos, geográficos y tecnológicos</b> —nivel educativo, ingreso, ubicación y acceso digital— determinan de forma significativa la tenencia de cuentas de ahorro y crédito <a class="ref" href="#r1">(Vílchez et&nbsp;al., 2023)</a>. Sobre esa base, este trabajo analiza una muestra de 5 000 personas para responder: <i>¿quiénes acceden al crédito y logran ahorrar, y qué brechas geográficas y de historial crediticio explican la exclusión financiera?</i></p>
+  <div class="insight">
+    <b>Objetivo del trabajo.</b> Medir el nivel de inclusión financiera de la población analizada, clasificar a las personas según su acceso a servicios financieros, e identificar las brechas por departamento, zona (urbano/rural), historial crediticio y nivel de ingreso.
+  </div>
+</section>
+
+<!-- 2. DATOS -->
+<section id="datos">
+  <div class="kicker">La base de datos</div>
+  <h2><span class="num">2</span>Descripción de los datos</h2>
+  <p>La base <code>A_Equipo7_CreditoAhorro.xlsx</code> contiene <b>5 000 registros</b> y <b>11 variables</b> que combinan atributos demográficos, económicos y financieros de cada persona.</p>
+  <div class="kpis">
+    <div class="kpi"><div class="big">5 000</div><div class="lbl">Personas</div></div>
+    <div class="kpi"><div class="big">11</div><div class="lbl">Variables</div></div>
+    <div class="kpi"><div class="big">6</div><div class="lbl">Departamentos</div></div>
+    <div class="kpi"><div class="big">S/ 1 405</div><div class="lbl">Ingreso mediano</div></div>
+    <div class="kpi"><div class="big">17,8%</div><div class="lbl">Tasa de ahorro media</div></div>
+  </div>
+  <h3>Diccionario de variables</h3>
+  <table>
+    <thead><tr><th>Variable</th><th>Tipo</th><th>Descripción</th></tr></thead>
+    <tbody>
+      <tr><td>ID_Persona</td><td>Entero</td><td>Identificador único</td></tr>
+      <tr><td>Edad</td><td>Numérica</td><td>Edad en años (18–64)</td></tr>
+      <tr><td>Departamento</td><td>Categórica</td><td>Loreto, Lima, Apurímac, Puno, Tacna, Junín</td></tr>
+      <tr><td>Zona</td><td>Categórica</td><td>Urbana / Rural</td></tr>
+      <tr><td>Ingreso_Mensual</td><td>Numérica</td><td>Ingreso mensual en soles</td></tr>
+      <tr><td>Ahorro_Mensual</td><td>Numérica</td><td>Ahorro mensual en soles</td></tr>
+      <tr><td>Acceso_Credito</td><td>Categórica</td><td>¿Tiene acceso a crédito? Sí / No</td></tr>
+      <tr><td>Tipo_Institucion</td><td>Categórica</td><td>Banco, Caja Municipal, Financiera, Cooperativa, Ninguna</td></tr>
+      <tr><td>Frecuencia_Ahorro</td><td>Categórica</td><td>Mensual / Ocasional / Nunca</td></tr>
+      <tr><td>Historial_Crediticio</td><td>Categórica</td><td>Bueno / Regular / Malo / Nulo</td></tr>
+      <tr><td>Tiene_Cuenta_Bancaria</td><td>Categórica</td><td>Sí / No</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 3. LIMPIEZA -->
+<section id="limpieza">
+  <div class="kicker">Calidad de datos</div>
+  <h2><span class="num">3</span>Reglas de limpieza de datos</h2>
+  <p>Antes del análisis se detectaron <b>300 valores faltantes</b> distribuidos en casi todas las columnas. El dato crudo <b>no se modifica</b>: la limpieza se ejecuta en código y de forma reproducible, aplicando las siguientes reglas.</p>
+  <div class="rules">
+    <div class="rule"><span class="tag">Regla 1</span><b>Variables numéricas → mediana</b><span>Edad, Ingreso_Mensual y Ahorro_Mensual se imputan con la <b>mediana</b>, robusta frente a valores extremos.</span></div>
+    <div class="rule"><span class="tag">Regla 2</span><b>Variables categóricas → moda</b><span>Departamento, Zona, Acceso_Credito, Tipo_Institucion, Frecuencia_Ahorro, Historial_Crediticio y Tiene_Cuenta_Bancaria se imputan con la <b>categoría más frecuente</b>.</span></div>
+    <div class="rule"><span class="tag">Regla 3</span><b>Sin pérdida de registros</b><span>La imputación conserva las <b>5 000 filas</b>, evitando sesgar la muestra al eliminar casos.</span></div>
+    <div class="rule"><span class="tag">Regla 4</span><b>Validación</b><span>Se verifica que no queden nulos, que ID_Persona sea único y que edad e ingreso estén en rangos plausibles.</span></div>
+  </div>
+  <div class="canvas-box full" style="height:300px;margin-top:10px"><canvas id="chNulos"></canvas></div>
+  <p class="note">Valores faltantes por variable antes de la limpieza (total = 300). Tras aplicar las reglas, todas las columnas quedan en 0 nulos.</p>
+</section>
+
+<!-- 4. CLASIFICACIONES -->
+<section id="clasif">
+  <div class="kicker">Categorización con condicionales</div>
+  <h2><span class="num">4</span>Clasificaciones creadas</h2>
+  <p>A partir de las variables originales se derivaron columnas nuevas mediante condicionales, para segmentar a la población según su comportamiento financiero.</p>
+  <div class="clas">
+    <div class="cbox" style="background:linear-gradient(135deg,#2563eb,#1e40af)">
+      <h4>🏦 Nivel de Inclusión</h4>
+      <p><b>Alta:</b> tiene cuenta <code>y</code> crédito.</p>
+      <p><b>Exclusión:</b> sin cuenta, sin crédito y sin institución.</p>
+      <p><b>Moderada:</b> el resto.</p>
+    </div>
+    <div class="cbox" style="background:linear-gradient(135deg,#0d9488,#0f766e)">
+      <h4>💰 Segmento de Ingreso</h4>
+      <p><b>Bajo:</b> &lt; S/ 1 025 (bajo el sueldo mínimo).</p>
+      <p><b>Medio:</b> S/ 1 025 – 2 050.</p>
+      <p><b>Alto:</b> &gt; S/ 2 050.</p>
+    </div>
+    <div class="cbox" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+      <h4>📈 Capacidad de Ahorro</h4>
+      <p>Según % del ingreso ahorrado:</p>
+      <p><b>Baja:</b> &lt;10% · <b>Media:</b> 10–20% · <b>Alta:</b> &gt;20%.</p>
+    </div>
+    <div class="cbox" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)">
+      <h4>🧮 Porcentaje de Ahorro</h4>
+      <p>Indicador propio:</p>
+      <p><code>Ahorro_Mensual / Ingreso_Mensual × 100</code></p>
+      <p>Promedio de la muestra: <b>17,8%</b>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5. GRÁFICOS -->
+<section id="graficos">
+  <div class="kicker">Visualización y hallazgos</div>
+  <h2><span class="num">5</span>Gráficos y hallazgos</h2>
+
+  <div class="grid">
+    <div class="chart-card">
+      <h4>Acceso al crédito por departamento</h4>
+      <div class="cap">Número de personas con y sin acceso a crédito</div>
+      <div class="canvas-box"><canvas id="chCredDepto"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h4>Nivel de inclusión financiera</h4>
+      <div class="cap">Distribución de la población en tres niveles</div>
+      <div class="canvas-box"><canvas id="chNivel"></canvas></div>
+    </div>
+  </div>
+
+  <div class="insight">
+    <b>Hallazgo 1.</b> Solo el <b>7,7%</b> de la muestra (384 personas) está en <b>exclusión financiera total</b>, mientras que 1 846 personas alcanzan alta inclusión. La mayoría (2 770) se ubica en una zona intermedia: tienen algún servicio, pero no la combinación completa de cuenta + crédito.
+  </div>
+
+  <div class="grid">
+    <div class="chart-card">
+      <h4>Tipo de institución financiera</h4>
+      <div class="cap">¿Con qué entidad se relacionan las personas?</div>
+      <div class="canvas-box"><canvas id="chInst"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h4>Ranking de exclusión financiera por departamento</h4>
+      <div class="cap">% de población en exclusión (criterio geográfico)</div>
+      <div class="canvas-box"><canvas id="chRanking"></canvas></div>
+    </div>
+  </div>
+
+  <div class="insight warn">
+    <b>Hallazgo 2 — brecha geográfica.</b> <b>Apurímac (9,6%)</b> y <b>Junín (8,3%)</b> lideran la exclusión financiera, por encima de Tacna (6,9%) y Loreto (6,9%). Las regiones andinas concentran la mayor exclusión, coherente con las brechas de infraestructura y menor penetración bancaria del país.
+  </div>
+
+  <div class="grid">
+    <div class="chart-card">
+      <h4>Historial crediticio y acceso a crédito</h4>
+      <div class="cap">Personas con/sin crédito según su historial</div>
+      <div class="canvas-box"><canvas id="chHist"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h4>Cuenta bancaria por zona</h4>
+      <div class="cap">Bancarización en zona urbana vs. rural</div>
+      <div class="canvas-box"><canvas id="chZona"></canvas></div>
+    </div>
+  </div>
+
+  <div class="insight warn">
+    <b>Hallazgo 3 — el historial lo es casi todo.</b> Entre quienes tienen historial <b>Bueno</b>, el 61% accede a crédito; pero entre quienes tienen historial <b>Nulo</b>, <b>solo 5 de 506 personas (≈1%)</b> lo logran. La falta de historial (el "expediente delgado") es la barrera más severa para entrar al sistema crediticio.
+  </div>
+
+  <div class="chart-card full">
+    <h4>Ingreso y ahorro promedio por departamento</h4>
+    <div class="cap">Soles mensuales promedio (ingreso vs. ahorro)</div>
+    <div class="canvas-box" style="height:330px"><canvas id="chIngAho"></canvas></div>
+  </div>
+</section>
+
+<!-- 6. ANÁLISIS ADICIONAL -->
+<section id="adicional">
+  <div class="kicker">Profundizando</div>
+  <h2><span class="num">6</span>Análisis adicional e interpretación económica</h2>
+  <p>Más allá de lo descriptivo, cruzamos las clasificaciones propias para extraer implicancias económicas.</p>
+
+  <div class="grid">
+    <div class="chart-card">
+      <h4>Acceso al crédito por segmento de ingreso</h4>
+      <div class="cap">% que accede a crédito en cada segmento</div>
+      <div class="canvas-box"><canvas id="chCredSeg"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h4>Acceso al crédito por zona</h4>
+      <div class="cap">% que accede a crédito: urbano vs. rural</div>
+      <div class="canvas-box"><canvas id="chCredZona"></canvas></div>
+    </div>
+  </div>
+
+  <div class="insight">
+    <b>Hallazgo 4 — el ingreso ayuda, pero no linealmente.</b> El segmento de ingreso <b>Medio</b> es el que más accede a crédito (57,0%), por encima del <b>Alto</b> (54,2%) y del <b>Bajo</b> (49,1%). Los hogares de ingresos altos podrían depender menos del crédito (mayor autofinanciamiento), mientras que el segmento medio es el "cliente natural" de la banca y las microfinanzas.
+  </div>
+  <div class="insight">
+    <b>Hallazgo 5 — la paradoja rural.</b> La zona <b>rural</b> muestra un acceso a crédito ligeramente <b>mayor</b> (56,2%) que la urbana (53,7%). Esto es consistente con el fuerte despliegue de <b>cajas municipales y cooperativas</b> en provincias, que atienden a segmentos que la banca tradicional no cubre.
+  </div>
+
+  <div class="grid">
+    <div class="chart-card">
+      <h4>Capacidad de ahorro de la población</h4>
+      <div class="cap">Personas según % de ingreso ahorrado</div>
+      <div class="canvas-box"><canvas id="chCapAhorro"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h4>Relación entre ingreso y ahorro</h4>
+      <div class="cap">Correlación = 0,53 (positiva y moderada)</div>
+      <div class="canvas-box"><canvas id="chScatter"></canvas></div>
+    </div>
+  </div>
+
+  <div class="insight">
+    <b>Hallazgo 6 — sí se ahorra.</b> La tasa de ahorro promedio es de <b>17,8%</b> del ingreso y 1 821 personas ahorran más del 20%. La correlación ingreso–ahorro (0,53) confirma que a mayor ingreso hay mayor ahorro, pero de forma <b>moderada</b>: el ahorro depende también de hábitos y del acceso a instrumentos formales, no solo del nivel de ingreso.
+  </div>
+</section>
+
+<!-- 7. CONCLUSIONES -->
+<section id="conclusion">
+  <div class="kicker">Síntesis</div>
+  <h2><span class="num">7</span>Conclusiones</h2>
+  <div class="concl">
+    <ul>
+      <li><b>La exclusión es minoritaria pero concentrada.</b> Solo el 7,7% está totalmente excluido, pero se concentra en regiones andinas (Apurímac, Junín), reflejando la brecha territorial de la inclusión financiera en el Perú.</li>
+      <li><b>El historial crediticio es la barrera decisiva.</b> Sin historial, el acceso al crédito colapsa a ≈1%. Construir historial (el "expediente delgado") es el cuello de botella clave para la inclusión.</li>
+      <li><b>La banca no llega sola.</b> Las cajas municipales y cooperativas explican que la zona rural iguale —e incluso supere— a la urbana en acceso al crédito.</li>
+      <li><b>El ingreso importa, pero con matices.</b> El segmento medio es el más incluido; el ahorro guarda relación moderada con el ingreso (r = 0,53), lo que abre espacio a políticas de educación y productos de ahorro.</li>
+    </ul>
+    <div class="reco">
+      <b>Implicancias de política.</b> (1) Fortalecer sistemas de historial crediticio alternativo (pagos de servicios, datos digitales) para incluir a la población de expediente nulo; (2) ampliar la red de microfinanzas en Apurímac y Junín; (3) promover productos de ahorro formal ligados a educación financiera. <br><span class="note">Limitaciones: la muestra es transversal (un momento en el tiempo) y la imputación por mediana/moda puede atenuar la variabilidad de las variables con datos faltantes.</span>
+    </div>
+  </div>
+</section>
+
+<!-- 8. REFERENCIAS -->
+<section id="refs">
+  <div class="kicker">Fuentes</div>
+  <h2><span class="num">8</span>Referencias</h2>
+  <ol class="refs">
+    <li id="r1">Vílchez Vásquez, R. et&nbsp;al. (2023). <i>Inclusión financiera en el Perú: análisis de factores socioeconómicos, geográficos y tecnológicos.</i> Revista científica (Redalyc/SciELO). Disponible en: <a class="ref" href="https://www.redalyc.org/journal/419/41982169009/html/" target="_blank" rel="noopener">redalyc.org/journal/419/41982169009</a></li>
+    <li id="r2">Superintendencia de Banca, Seguros y AFP — SBS (2018). <i>Determinantes de la inclusión financiera en el Perú.</i> Documento de Trabajo DT-001-2018. Disponible en: <a class="ref" href="https://www.sbs.gob.pe/Portals/0/jer/DDT_ANO2018/DT-001-2018%20(esp).pdf" target="_blank" rel="noopener">sbs.gob.pe (DT-001-2018)</a></li>
+    <li>Ministerio de Economía y Finanzas (MEF). <i>Estrategia Nacional de Inclusión Financiera del Perú (ENIF).</i> Disponible en: <a class="ref" href="https://www.mef.gob.pe/contenidos/archivos-descarga/ENIF.pdf" target="_blank" rel="noopener">mef.gob.pe/ENIF</a></li>
+  </ol>
+</section>
+
+</main>
+
+<footer>
+  <b>Acceso al Crédito y Ahorro Financiero en el Perú</b> — Grupo 7 · Ciencia de Datos para Economistas<br>
+  Universidad de Lima · Facultad de Economía · Trabajo Práctico 1<br>
+  <span class="note" style="color:#94a3b8">Elaborado por: Yamir Josue Mamani Sanabria · Ana Letizia Ugaz Sotelo · Mirko Estéfano Vlainic’ Vásquez · Ignacio Sebastian Tello Cespedes</span>
+</footer>
+
+<script>
+Chart.register(ChartDataLabels);
+Chart.defaults.font.family = "'Segoe UI',system-ui,sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#475569';
+
+// PALETA
+const C = {azul:'#2563eb', azulD:'#1e40af', teal:'#0d9488', ambar:'#f59e0b',
+  rosa:'#e11d48', violeta:'#7c3aed', verde:'#16a34a', gris:'#94a3b8', celeste:'#38bdf8'};
+const multi = [C.azul, C.teal, C.ambar, C.rosa, C.violeta, C.verde];
+
+// DATOS (calculados desde el Excel con pandas)
+const D = {
+  nulos:{labels:["Edad","Departamento","Zona","Ingreso","Ahorro","Acceso_Credito","Tipo_Inst","Frec_Ahorro","Historial","Cuenta"],
+         vals:[30,30,29,31,30,29,30,30,31,30]},
+  credDepto:{labels:["Loreto","Lima","Apurímac","Puno","Tacna","Junín"], si:[556,532,382,456,422,375], no:[391,345,481,343,366,351]},
+  nivel:{labels:["Moderada inclusión","Alta inclusión","Exclusión financiera"], vals:[2770,1846,384]},
+  inst:{labels:["Banco","Caja Municipal","Financiera","Cooperativa","Ninguna"], vals:[1501,1341,979,691,488]},
+  ranking:{labels:["Apurímac","Junín","Puno","Lima","Loreto","Tacna"], vals:[9.62,8.26,7.38,7.18,6.86,6.85]},
+  hist:{labels:["Bueno","Regular","Malo","Nulo"], si:[1262,951,505,5], no:[797,637,342,501]},
+  cuentaZona:{labels:["Rural","Urbana"], si:[988,2164], no:[520,1328]},
+  ingAho:{labels:["Junín","Lima","Puno","Loreto","Apurímac","Tacna"], ing:[1486,1476,1459,1405,1380,1359], aho:[246,244,238,233,223,225]},
+  credSeg:{labels:["Bajo","Medio","Alto"], vals:[49.1,57.0,54.2]},
+  credZona:{labels:["Rural","Urbana"], vals:[56.2,53.7]},
+  capAhorro:{labels:["Alta (>20%)","Media (10-20%)","Baja (<10%)"], vals:[1821,2288,891]}
+};
+
+const rot = {color:'#0f172a', font:{weight:'bold'}, anchor:'end', align:'end', offset:2};
+const rotIn = {color:'#fff', font:{weight:'bold'}};
+
+// 1. NULOS
+new Chart(chNulos,{type:'bar',data:{labels:D.nulos.labels,
+  datasets:[{label:'Valores faltantes',data:D.nulos.vals,backgroundColor:C.rosa,borderRadius:6}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+    datalabels:{...rot,color:C.rosa},title:{display:false}},
+    scales:{y:{title:{display:true,text:'N.º de nulos'},beginAtZero:true}}}});
+
+// 2. CRÉDITO POR DEPTO
+new Chart(chCredDepto,{type:'bar',data:{labels:D.credDepto.labels,
+  datasets:[{label:'Con crédito',data:D.credDepto.si,backgroundColor:C.azul,borderRadius:5},
+            {label:'Sin crédito',data:D.credDepto.no,backgroundColor:C.ambar,borderRadius:5}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'},
+    datalabels:{...rotIn,anchor:'center',align:'center'}},
+    scales:{x:{title:{display:true,text:'Departamento'}},y:{title:{display:true,text:'Personas'},beginAtZero:true}}}});
+
+// 3. NIVEL DE INCLUSIÓN
+new Chart(chNivel,{type:'bar',data:{labels:D.nivel.labels,
+  datasets:[{label:'Personas',data:D.nivel.vals,backgroundColor:[C.teal,C.azul,C.rosa],borderRadius:6}]},
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+    datalabels:{...rot,anchor:'end',align:'end',color:'#0f172a'}},
+    scales:{x:{title:{display:true,text:'Personas'},beginAtZero:true}}}});
+
+// 4. TIPO INSTITUCIÓN
+new Chart(chInst,{type:'bar',data:{labels:D.inst.labels,
+  datasets:[{label:'Personas',data:D.inst.vals,backgroundColor:multi,borderRadius:6}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+    datalabels:{...rot,color:'#0f172a'}},
+    scales:{y:{title:{display:true,text:'Personas'},beginAtZero:true}}}});
+
+// 5. RANKING EXCLUSIÓN
+new Chart(chRanking,{type:'bar',data:{labels:D.ranking.labels,
+  datasets:[{label:'% en exclusión',data:D.ranking.vals,backgroundColor:C.rosa,borderRadius:6}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+    datalabels:{...rot,color:C.rosa,formatter:v=>v+'%'}},
+    scales:{y:{title:{display:true,text:'% de población'},beginAtZero:true}}}});
+
+// 6. HISTORIAL vs CRÉDITO
+new Chart(chHist,{type:'bar',data:{labels:D.hist.labels,
+  datasets:[{label:'Con crédito',data:D.hist.si,backgroundColor:C.verde,borderRadius:5},
+            {label:'Sin crédito',data:D.hist.no,backgroundColor:C.gris,borderRadius:5}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'},
+    datalabels:{...rotIn,anchor:'center',align:'center'}},
+    scales:{x:{title:{display:true,text:'Historial crediticio'}},y:{title:{display:true,text:'Personas'},beginAtZero:true}}}});
+
+// 7. CUENTA POR ZONA
+new Chart(chZona,{type:'bar',data:{labels:D.cuentaZona.labels,
+  datasets:[{label:'Con cuenta',data:D.cuentaZona.si,backgroundColor:C.teal,borderRadius:5},
+            {label:'Sin cuenta',data:D.cuentaZona.no,backgroundColor:C.ambar,borderRadius:5}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'},
+    datalabels:{...rotIn,anchor:'center',align:'center'}},
+    scales:{x:{title:{display:true,text:'Zona'}},y:{title:{display:true,text:'Personas'},beginAtZero:true}}}});
+
+// 8. INGRESO Y AHORRO POR DEPTO
+new Chart(chIngAho,{type:'bar',data:{labels:D.ingAho.labels,
+  datasets:[{label:'Ingreso promedio (S/)',data:D.ingAho.ing,backgroundColor:C.azul,borderRadius:5,yAxisID:'y'},
+            {label:'Ahorro promedio (S/)',data:D.ingAho.aho,backgroundColor:C.verde,borderRadius:5,yAxisID:'y1'}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'},
+    datalabels:{...rot,color:'#0f172a',formatter:v=>v}},
+    scales:{y:{position:'left',title:{display:true,text:'Ingreso (S/)'},beginAtZero:true},
+            y1:{position:'right',title:{display:true,text:'Ahorro (S/)'},beginAtZero:true,grid:{drawOnChartArea:false}}}}});
+
+// 9. CRÉDITO POR SEGMENTO
+new Chart(chCredSeg,{type:'bar',data:{labels:D.credSeg.labels,
+  datasets:[{label:'% con crédito',data:D.credSeg.vals,backgroundColor:[C.gris,C.azul,C.violeta],borderRadius:6}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+    datalabels:{...rot,color:'#0f172a',formatter:v=>v+'%'}},
+    scales:{x:{title:{display:true,text:'Segmento de ingreso'}},y:{title:{display:true,text:'% con crédito'},beginAtZero:true,max:70}}}});
+
+// 10. CRÉDITO POR ZONA
+new Chart(chCredZona,{type:'bar',data:{labels:D.credZona.labels,
+  datasets:[{label:'% con crédito',data:D.credZona.vals,backgroundColor:[C.teal,C.celeste],borderRadius:6}]},
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+    datalabels:{...rotIn,anchor:'center',align:'center',formatter:v=>v+'%'}},
+    scales:{x:{title:{display:true,text:'% con crédito'},beginAtZero:true,max:70}}}});
+
+// 11. CAPACIDAD DE AHORRO
+new Chart(chCapAhorro,{type:'bar',data:{labels:D.capAhorro.labels,
+  datasets:[{label:'Personas',data:D.capAhorro.vals,backgroundColor:[C.verde,C.ambar,C.rosa],borderRadius:6}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+    datalabels:{...rot,color:'#0f172a'}},
+    scales:{y:{title:{display:true,text:'Personas'},beginAtZero:true}}}});
+
+// 12. SCATTER INGRESO-AHORRO (muestra real de 280 personas tomada del Excel)
+const pts=[{"x":3331,"y":501.1},{"x":1445.9,"y":220.9},{"x":277.7,"y":125},{"x":1099.2,"y":329.8},{"x":2137.8,"y":202.1},{"x":1849.4,"y":417.1},{"x":1349.1,"y":432.2},{"x":150,"y":45},{"x":1339.7,"y":150},{"x":356.2,"y":116.9},{"x":1500.4,"y":195.1},{"x":1199.3,"y":365.5},{"x":1104.5,"y":281.2},{"x":1218.5,"y":261.7},{"x":295.1,"y":37.4},{"x":1988.6,"y":293.7},{"x":1743.3,"y":295.2},{"x":2172,"y":474.1},{"x":1133.8,"y":281.5},{"x":799.4,"y":211.7},{"x":1188.6,"y":291.7},{"x":924.3,"y":110.9},{"x":865.4,"y":117.9},{"x":1588,"y":441.9},{"x":1517.4,"y":298.4},{"x":1605.7,"y":192.7},{"x":2023.6,"y":0},{"x":542.8,"y":139.8},{"x":1866.3,"y":403.9},{"x":825.1,"y":256},{"x":1243.9,"y":278.5},{"x":1055.7,"y":126.7},{"x":2029.2,"y":223.6},{"x":2133.4,"y":471.4},{"x":1744.7,"y":611.2},{"x":288.6,"y":129.9},{"x":1550.3,"y":331.3},{"x":1349.7,"y":264.5},{"x":659.6,"y":197.9},{"x":1608.7,"y":415.1},{"x":803.3,"y":154.1},{"x":999,"y":80.6},{"x":920.6,"y":110.5},{"x":965.8,"y":222.7},{"x":2874.2,"y":417.7},{"x":1491.3,"y":124},{"x":1637.2,"y":327.9},{"x":1523.6,"y":189.8},{"x":1061.6,"y":159.1},{"x":1325.6,"y":304.4},{"x":1516.5,"y":68},{"x":3395.6,"y":307.6},{"x":546.6,"y":126.7},{"x":2086.8,"y":184.1},{"x":1358.3,"y":375.8},{"x":633.4,"y":116.9},{"x":1281.6,"y":363.6},{"x":1369.9,"y":364.2},{"x":1172.2,"y":390.8},{"x":875.8,"y":138.8},{"x":712.2,"y":85.5},{"x":1216.2,"y":251.5},{"x":635.6,"y":103},{"x":1347.1,"y":251.3},{"x":1642.9,"y":214.7},{"x":2663.8,"y":164},{"x":1447.5,"y":155.9},{"x":1976.3,"y":297.2},{"x":1594.7,"y":204.9},{"x":808.9,"y":192.9},{"x":414.4,"y":140.6},{"x":1504.5,"y":298.8},{"x":312.9,"y":37.5},{"x":1653.5,"y":376},{"x":1430.3,"y":36},{"x":806,"y":244.7},{"x":2476.8,"y":210.9},{"x":2795.2,"y":301.5},{"x":352.9,"y":67},{"x":1605.4,"y":217.8},{"x":199.1,"y":23.9},{"x":2258.3,"y":255.3},{"x":1573.6,"y":210.7},{"x":1671.8,"y":171.8},{"x":1898.1,"y":318},{"x":2560.5,"y":510.6},{"x":1138.2,"y":221.5},{"x":662.5,"y":144.8},{"x":794.4,"y":110.5},{"x":902,"y":244.2},{"x":1818.3,"y":530.3},{"x":956.7,"y":182.3},{"x":1609.3,"y":344.6},{"x":1340.7,"y":108.5},{"x":1271.3,"y":248},{"x":1608.2,"y":452.1},{"x":626,"y":202.8},{"x":625.4,"y":187.6},{"x":239.8,"y":28.8},{"x":1447.3,"y":201.3},{"x":334.9,"y":73.2},{"x":1051.5,"y":109.8},{"x":892.1,"y":247.7},{"x":376.5,"y":130.8},{"x":1630.7,"y":97.8},{"x":1383.9,"y":132.3},{"x":1357,"y":246.9},{"x":511,"y":221.1},{"x":1404.8,"y":321.5},{"x":1091.5,"y":123.7},{"x":805.2,"y":68.1},{"x":2338.3,"y":171.9},{"x":1859.5,"y":459.8},{"x":862.6,"y":225.9},{"x":751.1,"y":244.3},{"x":1528.4,"y":314.7},{"x":1218.2,"y":493.1},{"x":1719.4,"y":195.9},{"x":1698,"y":169.8},{"x":743.7,"y":89.2},{"x":1833.6,"y":115.5},{"x":1298.5,"y":81.5},{"x":2150.8,"y":472.9},{"x":1889.4,"y":193.2},{"x":872.9,"y":125.9},{"x":1419.3,"y":156.3},{"x":2326.7,"y":469.6},{"x":1434.9,"y":148},{"x":968.6,"y":346.2},{"x":1740.6,"y":378.3},{"x":1517.4,"y":28.6},{"x":2350.6,"y":407.5},{"x":2316.7,"y":254.8},{"x":2768.1,"y":396.1},{"x":1813.6,"y":385.3},{"x":1150.6,"y":186.5},{"x":971.4,"y":225.2},{"x":1242,"y":69.5},{"x":1314.9,"y":131.7},{"x":1412.9,"y":169.6},{"x":1434.5,"y":322.3},{"x":1265.5,"y":28.5},{"x":1675.9,"y":237.4},{"x":517.7,"y":90.3},{"x":1811.1,"y":168.9},{"x":1568.2,"y":247.2},{"x":685.6,"y":124.8},{"x":1602.9,"y":192.3},{"x":1412.2,"y":379.2},{"x":1278.9,"y":224.9},{"x":2355.3,"y":411.8},{"x":1484.7,"y":426.2},{"x":873.7,"y":199.8},{"x":1379.5,"y":378.9},{"x":2029.3,"y":316.2},{"x":967.6,"y":148.5},{"x":952.4,"y":243.1},{"x":2283.6,"y":398.6},{"x":1433.5,"y":483.7},{"x":1845.4,"y":263.4},{"x":2433.9,"y":274.6},{"x":1679,"y":721.9},{"x":1488.2,"y":237.7},{"x":1237.4,"y":433.5},{"x":1548.6,"y":230.4},{"x":964.6,"y":234.6},{"x":1677.1,"y":156.6},{"x":1341.7,"y":152.9},{"x":1651.4,"y":365.9},{"x":1880.2,"y":184.3},{"x":1727.7,"y":92.1},{"x":783.2,"y":205},{"x":994.1,"y":258.3},{"x":1825.4,"y":295.1},{"x":875.4,"y":221.3},{"x":1817,"y":360.7},{"x":2358.7,"y":210.9},{"x":1291.3,"y":293.3},{"x":1702,"y":271.4},{"x":833.9,"y":181.9},{"x":1808.1,"y":203.4},{"x":1441.1,"y":165.2},{"x":929.8,"y":294.8},{"x":1413.7,"y":392.4},{"x":513.9,"y":154.2},{"x":1586.1,"y":386.7},{"x":781.1,"y":187.4},{"x":1500.8,"y":65.2},{"x":570,"y":145.2},{"x":900.7,"y":195.9},{"x":1154.1,"y":186.8},{"x":2468,"y":463},{"x":1038.8,"y":66},{"x":1420.5,"y":145},{"x":1347.7,"y":297.2},{"x":1376.5,"y":213.5},{"x":858.8,"y":159.8},{"x":430.1,"y":93.1},{"x":278.8,"y":78.1},{"x":1357.3,"y":162.9},{"x":571.5,"y":153.9},{"x":2262.1,"y":338.8},{"x":1304.6,"y":240.1},{"x":1329.6,"y":109.9},{"x":686.7,"y":162},{"x":1112.9,"y":248.5},{"x":1872.9,"y":270.7},{"x":2912,"y":246.4},{"x":1861.1,"y":440.2},{"x":3079.5,"y":697.2},{"x":1095,"y":109.8},{"x":2188.7,"y":695.5},{"x":2009.8,"y":152.7},{"x":1923.7,"y":182.9},{"x":776.2,"y":232.9},{"x":1346.1,"y":230},{"x":672.9,"y":221.1},{"x":1756.3,"y":210.8},{"x":1010.5,"y":150.8},{"x":903.6,"y":93.5},{"x":1115.2,"y":133.8},{"x":2158.2,"y":279.4},{"x":1779.9,"y":280},{"x":912.7,"y":122.6},{"x":1591.5,"y":342.8},{"x":2691.1,"y":583.7},{"x":1850,"y":74.7},{"x":787.6,"y":191.8},{"x":2011.4,"y":283.8},{"x":2237.1,"y":174.7},{"x":802.4,"y":333.7},{"x":1652.2,"y":146.2},{"x":1400.4,"y":233.6},{"x":2220.7,"y":372.1},{"x":986.5,"y":253},{"x":1054.3,"y":321.9},{"x":150,"y":45},{"x":1165.7,"y":345.7},{"x":532.1,"y":202.6},{"x":1844.4,"y":50.6},{"x":1416.7,"y":383.5},{"x":2289.8,"y":258.9},{"x":924.7,"y":215.6},{"x":1624.8,"y":196.4},{"x":923.4,"y":190.4},{"x":1495.3,"y":331.8},{"x":1789.1,"y":279.3},{"x":2490.6,"y":430.9},{"x":1586.5,"y":257.4},{"x":837.6,"y":100.5},{"x":1865.3,"y":376.5},{"x":1953.2,"y":417.2},{"x":824.4,"y":101.8},{"x":1141.4,"y":137},{"x":1920,"y":178.9},{"x":1621.2,"y":237.8},{"x":1346.2,"y":155.2},{"x":344.2,"y":70.7},{"x":1136,"y":338.4},{"x":1108,"y":333.4},{"x":3026.3,"y":804.1},{"x":1364.7,"y":258.7},{"x":2256.3,"y":473.7},{"x":1373.2,"y":374.8},{"x":1981.8,"y":34},{"x":756.9,"y":125},{"x":2056.9,"y":322.9},{"x":1578.2,"y":299.4},{"x":1030.4,"y":83.8},{"x":1412.2,"y":184},{"x":1785.8,"y":150.7},{"x":2052.6,"y":212.1},{"x":1767.2,"y":388.5},{"x":1897.7,"y":316.6},{"x":289.8,"y":34.8},{"x":2093.2,"y":241.1},{"x":2169.2,"y":609.5},{"x":1180.7,"y":293.7},{"x":1624.4,"y":287.1},{"x":1284,"y":336.8}];
+new Chart(chScatter,{type:'scatter',data:{datasets:[{label:'Personas (muestra)',data:pts,
+  backgroundColor:'rgba(37,99,235,.45)',pointRadius:3}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:false}},
+    scales:{x:{title:{display:true,text:'Ingreso mensual (S/)'}},y:{title:{display:true,text:'Ahorro mensual (S/)'}}}}});
+</script>
+</body>
+</html>
